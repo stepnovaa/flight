@@ -130,6 +130,12 @@
     <ClCompile Include="Flight.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Flight.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="FlightSchedule.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
