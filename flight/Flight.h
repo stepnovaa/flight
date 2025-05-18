@@ -2,6 +2,7 @@
 #include <iostream>
 #include<string>
 #include<fstream>
+#include <vector>
 using namespace std;
 
 //Структура рейса 
@@ -32,9 +33,9 @@ public:
 
 	void printAll() const;
 	
-	void getScheduleInput();
+	void InputAndAddFlight();
 
-	void saveToFile(const string &FlightSchedule);
+	void saveToFile (const string &FlightSchedule) const;
 
 	void loadFromFile(const string& FlightSchedule);
 

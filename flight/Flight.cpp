@@ -97,15 +97,15 @@ void FlightSchedule::printAll() const {
 
 }
 
-void  FlightSchedule::getScheduleInput() {
+void  FlightSchedule::InputAndAddFlight() {
 	string number, dest, departure;
 	int position;
-	cout << "\nВведите номер рейса"; getline(cin, number);
-	cout << "\nВведите пункт назначения"; getline(cin, dest);
-	cout << "\nВведите время отправления"; getline(cin, departure);
+	cout << "\nВведите номер рейса: ";cin>>number;
+	cout << "\nВведите пункт назначения: ";cin>>dest;
+	cout << "\nВведите время отправления: ";cin>> departure;
 	cout << "Куда добавить рейс?\n"
 		<< "0- начало\n"
-		<< size << "- в конец"
+		<< size << "- в конец\n"
 		<< "Введите позицию от 0 до " << size << ": "; cin >> position;
 
 	if (position<0 || position>size) {
@@ -120,16 +120,28 @@ void  FlightSchedule::getScheduleInput() {
 	}
 }
 
-void FlightSchedule::saveToFile(const string& FlightSchedule) {
-	ofstream inFile(FlightSchedule);
+void FlightSchedule::saveToFile(const string& FlightSchedule) const {
+	ofstream inFile(FlightSchedule, ios::binary );
 	if (!inFile) {
 		cout << "Не удалось открыть файл для записи: " << FlightSchedule << endl;
 		return;
 	}
+
+	inFile.write(reinterpret_cast <const char*>(&size), sizeof(size));
 	for (int i = 0; i < size; ++i) {
-		inFile << flights[i]->flightNumber << endl;
-		inFile << flights[i]->destination << endl;
-		inFile << flights[i]->departureTime << endl;
+		int len;
+
+		len = flights[i]->flightNumber.size();
+		inFile.write(reinterpret_cast <const char*>(&len),sizeof(len));
+		inFile.write(flights[i]->flightNumber.c_str(), len);
+
+		len = flights[i]->destination.size();
+		inFile.write(reinterpret_cast <const char*>(&len), sizeof(len));
+		inFile.write(flights[i]->destination.c_str(), len);
+
+		len = flights[i]->departureTime.size();
+		inFile.write(reinterpret_cast <const char*>(&len), sizeof(len));
+		inFile.write(flights[i]->departureTime.c_str(), len);
 	}
 	inFile.close();
 	cout << "Данные записаны в файл: " << FlightSchedule << endl;
@@ -137,39 +149,43 @@ void FlightSchedule::saveToFile(const string& FlightSchedule) {
 
 void FlightSchedule::loadFromFile(const string& FlightSchedule){
 
-	ifstream outFile(FlightSchedule);
+	ifstream outFile(FlightSchedule, ios::binary);
 	if (!outFile) {
 		cout << "Не удалось открыть файл для чтения: " << FlightSchedule << endl;
 		return;
 	}
-
-	//size = 0;
 	int count=0;
-	string line;
-	getline(outFile, line);
-	try {
-		count = stoi(line);//ф-я преобразования строки в int
-	}
-	catch (...) {
-		cout << "Ошибка чтения количества рейсов"<<endl;
-		return;
-	}
+	outFile.read(reinterpret_cast <char*>(&count), sizeof(count));
 	
-
 	for (int i = 0; i < size; i++) {
 		delete flights[i];
 	}
 	size = 0;
-	string number, dest, departure;
-	while (getline(outFile, number) && getline(outFile, dest) && getline(outFile, departure)) {
-		addFlightBack(new Flight{ number, dest, departure });
+
+	for (int i = 0; i < count; i++) {
+		int len;
+		string num, dest, dep;
+		char* buffer;
+
+		outFile.read(reinterpret_cast <char*>(&len), sizeof(len));
+		buffer = new char[len];
+		outFile.read(buffer, len);
+		num.assign(buffer, len);
+		delete[] buffer;
+
+		outFile.read(reinterpret_cast <char*>(&len), sizeof(len));
+		buffer = new char[len];
+		outFile.read(buffer, len);
+		dest.assign(buffer, len);
+		delete[] buffer;
+
+		outFile.read(reinterpret_cast <char*>(&len), sizeof(len));
+		buffer = new char[len];
+		outFile.read(buffer, len);
+		dep.assign(buffer, len);
+		delete[] buffer;
 	}
-	//for(int i=0;i<count;i++) {
-	//	getline(outFile,number);
-	//	getline(outFile,dest);
-	//	getline(outFile,departure);
-	//	addFlightBack(new Flight{number, dest, departure});
-	//}
+
 	outFile.close();
 	cout << "Прочитано " << count << " рейса из файла." << endl;
 }
