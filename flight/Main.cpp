@@ -12,7 +12,6 @@ int main() {
 	Schedule.addFlightBack(new Flight{ "9","ростов","19:00" });
 	Schedule.addFlightAt(new Flight{ "3","€рославль","14:00" }, 3);
     Schedule.saveToFile("FlightSchedule.txt");
-
     Schedule.loadFromFile("FlightSchedule.txt");
     Schedule.printAll();
    
