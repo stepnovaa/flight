@@ -1,5 +1,6 @@
 #include "Flight.h"
 #include <iostream>
+#include "sqlite3.h"
 
 //Реализация метода структуры 
 void Flight::print()const{
@@ -90,9 +91,7 @@ void FlightSchedule::printAll() const {
 		if (flights[i]) {
 			cout << i + 1 << ". ";
 			flights[i]->print();
-
 		}
-	
 	}
 
 }
@@ -160,34 +159,34 @@ void FlightSchedule::loadFromFile(const string& FlightSchedule){
 	for (int i = 0; i < size; i++) {
 		delete flights[i];
 	}
-	size = 0;
+	 size = 0;
 
 	for (int i = 0; i < count; i++) {
-		int len;
+		size_t len=0;
 		string num, dest, dep;
-		char* buffer;
+		vector <char> buffer(len);
 
 		outFile.read(reinterpret_cast <char*>(&len), sizeof(len));
-		buffer = new char[len];
-		outFile.read(buffer, len);
-		num.assign(buffer, len);
-		delete[] buffer;
+		outFile.read(buffer.data(), len);
+		num.assign(buffer.begin(),buffer.end());
 
 		outFile.read(reinterpret_cast <char*>(&len), sizeof(len));
-		buffer = new char[len];
-		outFile.read(buffer, len);
-		dest.assign(buffer, len);
-		delete[] buffer;
+		buffer.resize(len);
+		outFile.read(buffer.data(), len);
+		dest.assign(buffer.begin(), buffer.end());
 
 		outFile.read(reinterpret_cast <char*>(&len), sizeof(len));
-		buffer = new char[len];
-		outFile.read(buffer, len);
-		dep.assign(buffer, len);
-		delete[] buffer;
+		buffer.resize(len);
+		outFile.read(buffer.data(), len);
+		dep.assign(buffer.begin(), buffer.end());
+
+		cout << "Номер рейса:" << num << ", " << " Пункт назначения: "
+			<< dest << ", " << "Время отлета: " << dep<< endl;
+		addFlightBack(new Flight{ num, dest, dep });
 	}
-
 	outFile.close();
 	cout << "Прочитано " << count << " рейса из файла." << endl;
+	
 }
 
 	
